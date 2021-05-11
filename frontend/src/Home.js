@@ -27,13 +27,13 @@ const Home = ({navigation}) =>{
     const Read = async (post) =>{
         console.log(post)
         const id = post._id
-        const data = await axios.put('http://192.168.0.102:3001/api/postsreaded/' + id)
+        const data = await axios.put('http://192.168.0.102:3001/api/postsread/' + id)
         console.log(data)
         navigation.navigate("PostViewer", {id: id})
     }
     const Close = () =>{
         setModalVisible(false)
-      }
+    }
 
     return(
         <View>

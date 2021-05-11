@@ -14,16 +14,16 @@ const Registration = ({navigation}) =>{
         if(username===''){
             setModalText("Username is empty")
             setModalVisible(true)
-        }else if(password===''){
-            setModalText("password is empty")
+        }else if(password.length<8 || password.length>16){
+            setModalText("password must be between 8-16 charachter")
             setModalVisible(true)
         } else if(email===''){
             setModalText("email is empty")
             setModalVisible(true)
-        } else if(!email.endsWith('gmail.com')){
-            setModalText("Use gmail.com")
+        } else if(!email.includes('@') || (!email.endsWith('.com') && !email.endsWith('.hu'))){
+            setModalText("Use valid email adress")
             setModalVisible(true)
-        } else {
+        }  else {
             const { data } = await axios.post('http://192.168.0.102:3001/api/registration', {
                 username,
                 password,
@@ -37,7 +37,8 @@ const Registration = ({navigation}) =>{
                 setModalText(data)
                 setModalVisible(true)
             }
-        }
+      
+          }
     }
     const Close = () =>{
         setModalVisible(false)

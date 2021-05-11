@@ -6,19 +6,6 @@ const router = Router()
 
 const TOKEN_SECRET = 'Token secret szoveg'
 
-const postSchema = new mongoose.Schema({
-  title: { type: String, required: true, unique: true, },
-  content: { type: String },
-  topic: {type:String, required: true,},
-  readed: {type: Number, default :0 },
-  createdAt: { type: Date, default: Date.now },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-    required: true,
-  },
-})
-
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -30,6 +17,19 @@ const userSchema = new mongoose.Schema({
   password: { type: String, select: false, required: true, },
   email: {type: String, required: true, select: false},
   registeredAt: { type: Date, default: Date.now, select: false },
+})
+
+const postSchema = new mongoose.Schema({
+  title: { type: String, required: true, unique: true, },
+  content: { type: String },
+  topic: {type:String, required: true,},
+  read: {type: Number, default :0 },
+  createdAt: { type: Date, default: Date.now },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true,
+  },
 })
 
 const Post = mongoose.model('Post', postSchema)
@@ -55,6 +55,12 @@ router.get('/Usercheck', authentication,  async (req, res) => {
 
 router.post('/registration', async (req, res) => {
   const { username, password, email } = req.body
+  if(password.length<8 || password.length>16){
+    res.json('Password is not ok')
+  }
+  if(!email.includes('@') || (!email.endsWith('.com') && !email.endsWith('.hu'))){
+    res.json('Email is not ok')
+  }
   const user = await User.findOne({ username })
   const emailcheck = await User.findOne({ email })
   if (user ) {
@@ -174,15 +180,21 @@ router.post('/posts', authentication , async (req, res) => {
   res.json("Succes")
 })
 
-router.put('/postsreaded/:id', async(req,res) =>{
+router.put('/postsread/:id', async(req,res) =>{
   const id = req.params.id
   const data = await Post.findOne({_id : id})
   console.log( data.readed)
-  const updatedreaded = data.readed +1
-  const updated = await Post.findByIdAndUpdate(id, {readed : updatedreaded})
+  const updatedread = data.read +1
+  const updated = await Post.findByIdAndUpdate(id, {read : updatedread})
   console.log(updated)
   res.json(updated)
 })
+
+router.get('/Userid', authentication,  async (req, res) => {
+  const user = await User.findOne({_id : req.user})
+  console.log(user)
+  res.json(user)
+}) 
 
 
 export default router

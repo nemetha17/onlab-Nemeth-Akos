@@ -21,10 +21,12 @@ const Profile = ({navigation}) =>{
 
     }
 
-
-    const DeletePost = async (id) =>{
-        const data = await axios.delete('http://192.168.0.102:3001/api/posts/'+id)
+    const Read = async (post) =>{
+        console.log(post)
+        const id = post._id
+        const data = await axios.put('http://192.168.0.102:3001/api/postsread/' + id)
         console.log(data)
+        navigation.navigate("PostViewer", {id: id})
     }
 
     const EditPost = async () =>{
@@ -66,7 +68,7 @@ const Profile = ({navigation}) =>{
             <Button title="Edit post"  onPress={EditPost}/>
             <View>
                 {posts.map((post) => (
-                    <TouchableHighlight onPress={() =>DeletePost(post._id)}><Text>{post.title}</Text></TouchableHighlight>
+                    <TouchableHighlight onPress={() =>Read(post)}><Text>{post.title}</Text></TouchableHighlight>
                  ))}
             </View>
             <Modal
