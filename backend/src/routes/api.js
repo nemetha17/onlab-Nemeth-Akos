@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import mongoose from 'mongoose'
+import { upload } from '../utils/storage.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 const router = Router()
@@ -18,6 +19,15 @@ const userSchema = new mongoose.Schema({
   email: {type: String, required: true, select: false},
   registeredAt: { type: Date, default: Date.now, select: false },
 })
+const commentSchema = new mongoose.Schema({
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true,
+  },
+  username: {type: String},
+  text: {type: String},
+})
 
 const postSchema = new mongoose.Schema({
   title: { type: String, required: true, unique: true, },
@@ -30,10 +40,16 @@ const postSchema = new mongoose.Schema({
     ref: 'user',
     required: true,
   },
+  comments: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'comment',
+  }
+  
 })
 
 const Post = mongoose.model('Post', postSchema)
 const User = mongoose.model('User', userSchema)
+const Comment = mongoose.model('Comment', commentSchema)
 
 const authentication = async (req, res, next) => {
   const token = req.headers?.authorization?.replace('Bearer ', '')
@@ -90,6 +106,44 @@ router.post('/login', async (req, res) => {
     }
   }
 })
+
+router.post('/ChangePW', authentication, async (req, res) => {
+  console.log(req.body)
+  const oldpassword = req.body.oldpassword
+  const newpasswordone = req.body.newpasswordone
+  console.log(oldpassword)
+  console.log(newpasswordone)
+  const id = req.user
+  const user = await User.findOne({ id }).select('+password')
+  console.log("a")
+    const match = await bcrypt.compare( oldpassword, user.password)
+    if(!match){
+      console.log("b")
+      res.json("Wrong password")
+    } else {
+      const hashed = await bcrypt.hash(newpasswordone, 10)
+      await User.findByIdAndUpdate(id, {password : hashed })
+      console.log("c")
+      res.json("Changed")
+    }
+})
+
+router.post('/uploadpic', upload.single('pic'), (req, res) => {
+  console.log(req.file)
+  console.log(req.body)
+  const filepath = "/api/files/"+req.file.filename
+  console.log(filepath)
+  res.json(filepath)
+})
+
+router.post('/uploadprofilepic', upload.single('pic'), (req, res) => {
+  console.log(req.file)
+  console.log(req.body)
+  const filepath = "/api/files/"+req.file.filename
+  console.log(filepath)
+  res.json(filepath)
+})
+
 router.get('/users/:username', async(req,res)=>{
   const username = req.params.username
   const user = await User.findOne({username : username})
@@ -119,6 +173,13 @@ router.get('/posts/:id', async(req,res)=>{
   const post = await Post.findOne({_id : id})
   console.log(post)
   res.send(post)
+})
+
+router.get('/comments/:id', async(req,res)=>{
+  const id = req.params.id
+  const comm = await Comment.findOne({_id : id})
+  console.log(comm)
+  res.send(comm)
 })
 
 
@@ -163,6 +224,7 @@ router.delete('/posts/:id', async (req,res) =>{
 }) 
 
 router.get('/myposts', authentication,  async (req, res) => {
+  console.log(req.user)
   const posts = await Post.find({ createdBy: req.user })
   res.json(posts)
 })
@@ -196,5 +258,17 @@ router.get('/Userid', authentication,  async (req, res) => {
   res.json(user)
 }) 
 
+router.post('/postcomment/:id', authentication , async(req,res) =>{
+  const userid= req.user
+  const user = await User.findOne({ userid })
+  const id = req.params.id
+  const comment = req.body.comment
+  console.log(comment)
+  const postedcomment = await Comment.create({createdBy: req.user, username: user.username, text: comment})
+  console.log(postedcomment)
+  const updated = await Post.findByIdAndUpdate(id, { $push:{ comments:postedcomment}})
+  console.log(updated)
+  res.json("Success")
+})
 
 export default router

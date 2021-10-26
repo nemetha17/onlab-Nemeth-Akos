@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
-import {View, Text, Button, TouchableHighlight, Modal,  StyleSheet } from 'react-native'
+import {View, Text, TouchableHighlight, Modal,  StyleSheet } from 'react-native'
 import axios from 'axios'
 import {Picker} from '@react-native-picker/picker';
+import Button from './components/Button'
 
 const Home = ({navigation}) =>{
     const [modalVisible, setModalVisible] = useState(false);
@@ -14,20 +15,20 @@ const Home = ({navigation}) =>{
             setModalText("Choose a topic")
             setModalVisible(true)
         } else if(topic==="all") {
-            const { data: posts } = await axios.get('http://192.168.0.102:3001/api/posts')
+            const { data: posts } = await axios.get('http://192.168.0.104:3001/api/posts')
             setPosts(posts)
             console.log(posts)
         } else {
-            const { data: posts } = await axios.get('http://192.168.0.102:3001/api/topicposts/'+topic)
+            const { data: posts } = await axios.get('http://192.168.0.104:3001/api/topicposts/'+topic)
             setPosts(posts)
-            console.log(posts)
+            console.log(posts.Text)
         }
     }
 
     const Read = async (post) =>{
         console.log(post)
         const id = post._id
-        const data = await axios.put('http://192.168.0.102:3001/api/postsread/' + id)
+        const data = await axios.put('http://192.168.0.104:3001/api/postsread/' + id)
         console.log(data)
         navigation.navigate("PostViewer", {id: id})
     }
@@ -36,25 +37,33 @@ const Home = ({navigation}) =>{
     }
 
     return(
-        <View>
+        <View style={styles.container}>
+            <View style={{ flexDirection: "row" }}>
             <Picker
                 selectedValue={topic}
-                style={{ height: 50, width: 150 }}
+                style={{ height: 50, width: 150, }}
+                itemStyle={{ backgroundColor: 'lightgrey', marginLeft: 0, paddingLeft: 15 }}
+                itemTextStyle={{ fontSize: 18, color: 'white' }}
                 onValueChange={(itemValue) => setTopic(itemValue)}
             >
-                <Picker.Item label="Choose one" value="choose one" />
-                <Picker.Item label="All" value="all" />
-                <Picker.Item label="Sport" value="Sport" />
-                <Picker.Item label="Life" value="Life" />
-                <Picker.Item label="Gaming" value="Gaming" />
-                <Picker.Item label="Food" value="Dood" />
-                <Picker.Item label="Music" value="Music" />
-                <Picker.Item label="DIY" value="Diy" />
+                <Picker.Item label="Choose one" value="choose one" color="grey" />
+                <Picker.Item label="All" value="all" color="grey" />
+                <Picker.Item label="Sport" value="Sport"  color="grey"/>
+                <Picker.Item label="Life" value="Life" color="grey" />
+                <Picker.Item label="Gaming" value="Gaming" color="grey" />
+                <Picker.Item label="Food" value="Dood" color="grey"/>
+                <Picker.Item label="Music" value="Music" color="grey" />
+                <Picker.Item label="DIY" value="Diy" color="grey" />
             </Picker>
             <Button title="Get Posts"  onPress={getPosts}/>
+            </View>
             <View>
                 {posts.map((post) => (
-                    <TouchableHighlight onPress={() =>Read(post)}><Text>{post.title}</Text></TouchableHighlight>
+                    <TouchableHighlight onPress={() =>Read(post)}>
+                      <View style={styles.touchable}>
+                        <Text>{post.title}</Text>
+                      </View>
+                    </TouchableHighlight>
                  ))}
             </View>
             <Modal
@@ -89,6 +98,24 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.25,
       shadowRadius: 4,
       elevation: 5
-    }})
+    },
+    container: {
+        flex: 1,
+        backgroundColor: "green",
+        alignItems: "center",
+    },
+    touchable:{
+      justifyContent: "center",
+      alignItems: "center",
+      width: 350,
+      height: 55,
+      backgroundColor: "lightgreen",
+      margin: 10,
+      padding: 8,
+      color: "white",
+      borderRadius: 14,
+      fontSize: 18,
+    }
+})
 
 export default Home

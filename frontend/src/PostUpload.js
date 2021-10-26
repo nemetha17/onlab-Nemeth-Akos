@@ -1,7 +1,8 @@
 import React, {useState} from 'react'
-import {View, TextInput, Text, Button, Modal,  StyleSheet } from 'react-native'
+import {View, TextInput, Text, Modal,  StyleSheet } from 'react-native'
 import axios from 'axios'
 import {Picker} from '@react-native-picker/picker';
+import Button from './components/Button'
 
 const PostUpload = ({navigation}) =>{
     const [modalVisible, setModalVisible] = useState(false);
@@ -21,7 +22,7 @@ const PostUpload = ({navigation}) =>{
             setModalText("Content is empty")
             setModalVisible(true)
         } else {
-            const { data } = await axios.post('http://192.168.0.102:3001/api/posts', {
+            const { data } = await axios.post('http://192.168.0.104:3001/api/posts', {
             title,
             content,
             topic,
@@ -38,16 +39,20 @@ const PostUpload = ({navigation}) =>{
       }
 
     return(
-        <View>
-        <Text>Title:</Text>
-        <TextInput value={title} onChangeText={title => setTitle(title)} />
-        <Text>Topic:</Text>
+        <View style={styles.container}>
+        <Text style={styles.titleText} >Title:</Text>
+        <TextInput 
+          style={styles.input} 
+          autoCapitalize="none"
+          value={title} 
+          onChangeText={title => setTitle(title)} />
+        <Text style={styles.titleText} >Topic:</Text>
         <Picker
             selectedValue={topic}
             style={{ height: 50, width: 150 }}
             onValueChange={(itemValue) => setTopic(itemValue)}
         >
-             <Picker.Item label="Choose one" value="choose one" />
+            <Picker.Item label="Choose one" value="choose one" />
             <Picker.Item label="Sport" value="Sport" />
             <Picker.Item label="Life" value="Life" />
             <Picker.Item label="Gaming" value="Gaming" />
@@ -55,8 +60,13 @@ const PostUpload = ({navigation}) =>{
             <Picker.Item label="Music" value="Music" />
             <Picker.Item label="DIY" value="Diy" />
         </Picker>
-        <Text>Content:</Text>
-        <TextInput value={content} onChangeText={content => setContent(content)}/>
+        <Text style={styles.titleText} >Content:</Text>
+        <TextInput
+          style={styles.inputcontent} 
+          multiline = {true}
+          autoCapitalize="none"
+          value={content} 
+          onChangeText={content => setContent(content)}/>
         <Button title="Post"  onPress={uploadPost}/>
         <Modal
               animationType="slide"
@@ -90,6 +100,39 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.25,
       shadowRadius: 4,
       elevation: 5
-    }})
+    },
+    container: {
+      flex: 1,
+      backgroundColor: "green",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    input: {
+      width: 350,
+      height: 55,
+      backgroundColor: "lightgreen",
+      margin: 10,
+      padding: 8,
+      color: "white",
+      borderRadius: 14,
+      fontSize: 18,
+      fontWeight: "500",
+    },
+    inputcontent: {
+      width: 350,
+      height: 200,
+      backgroundColor: "lightgreen",
+      margin: 10,
+      padding: 8,
+      color: "white",
+      borderRadius: 14,
+      fontSize: 18,
+      fontWeight: "500",
+    },
+    titleText:{
+      fontSize: 24,
+      fontWeight: "bold"
+    },
+  })
 
 export default PostUpload

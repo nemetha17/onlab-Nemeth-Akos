@@ -22,8 +22,8 @@ const initDB = async () => {
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useFindAndModify: false,
-      useCreateIndex: true,
+      //useFindAndModify: false,
+      //useCreateIndex: true,
       dbName: DB_NAME,
     }
   )

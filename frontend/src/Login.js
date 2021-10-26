@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react'
-import {View, TextInput, Text, Button, Modal,  StyleSheet } from 'react-native'
+import {View, TextInput, Text, Modal,  StyleSheet } from 'react-native'
 import axios from 'axios'
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import Button from './components/Button'
 
 const Login = ({navigation}) =>{
     const [modalVisible, setModalVisible] = useState(false);
@@ -13,7 +14,7 @@ const Login = ({navigation}) =>{
     const check = async () => {
         const token = await AsyncStorage.getItem('token')
         axios.defaults.headers.authorization = `Bearer ${token}`
-        const { data } = await axios.get('http://192.168.0.102:3001/api/Usercheck')
+        const { data } = await axios.get('http://192.168.0.104:3001/api/Usercheck')
         console.log(data)
         if (data === 'OK') {
             navigation.navigate('Blogz')
@@ -30,7 +31,7 @@ const Login = ({navigation}) =>{
     
 
     const login = async () => {
-        const { data } = await axios.post('http://192.168.0.102:3001/api/login', {
+        const { data } = await axios.post('http://192.168.0.104:3001/api/login', {
           username,
           password,
         })
@@ -54,13 +55,30 @@ const Login = ({navigation}) =>{
     }
 
     return(
-        <View> 
-            <Text>Username:</Text>
-            <TextInput value={username} onChangeText={username => setUsername(username)} />
-            <Text>Password:</Text>
-            <TextInput secureTextEntry={true} value={password} onChangeText={password => setPassword(password)} />
-            <Button onPress={login} title="Login" />
-            <Button onPress={Registration} title="Registration" />
+        <View style={styles.container}> 
+            <TextInput 
+              style={styles.input} 
+              placeholder="Username"
+              autoCapitalize="none"
+              placeholderTextColor="white"
+              value={username} 
+              onChangeText={username => setUsername(username)} />
+            <TextInput 
+              style={styles.input} 
+              placeholder="Password"
+              autoCapitalize="none"
+              placeholderTextColor="white"
+              secureTextEntry={true} 
+              value={password} 
+              onChangeText={password => setPassword(password)} />
+            <View style={{ flexDirection: "row" }}>
+              <Button 
+                onPress={login} 
+                title="Login" />
+              <Button 
+                onPress={Registration} 
+                title="Registration" />
+            </View>
             <Modal
               animationType="slide"
               transparent={true}
@@ -93,6 +111,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5
-  }})
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "green",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  input: {
+    width: 350,
+    height: 55,
+    backgroundColor: "lightgreen",
+    margin: 10,
+    padding: 8,
+    color: "white",
+    borderRadius: 14,
+    fontSize: 18,
+    fontWeight: "500",
+  },
+
+})
 
 export default Login

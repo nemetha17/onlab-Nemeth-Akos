@@ -3,49 +3,39 @@ import {View, TextInput, Text, Modal,  StyleSheet } from 'react-native'
 import axios from 'axios'
 import Button from './components/Button'
 
-const Registration = ({navigation}) =>{
+const PWChange = ({navigation}) =>{
     const [modalVisible, setModalVisible] = useState(false);
     const [modal2Visible, setModal2Visible] = useState(false);
     const [modalText, setModalText] = useState('')
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const [email, setEmail] = useState('')
+    const [oldpassword, setOldpassword] = useState('')
+    const [newpasswordone, setNewpasswordone] = useState('')
+    const [newpasswordtwo, setnewpasswordtwo] = useState('')
 
-    const Registration = async () =>{
-        if(username===''){
-            setModalText("Username is empty")
-            setModalVisible(true)
-        }else if(password.length<8 || password.length>16){
-            setModalText("password must be between 8-16 charachter")
-            setModalVisible(true)
-        } else if(email===''){
-            setModalText("email is empty")
-            setModalVisible(true)
-        } else if(!email.includes('@') || (!email.endsWith('.com') && !email.endsWith('.hu'))){
-            setModalText("Use valid email adress")
-            setModalVisible(true)
-        }  else {
-            const { data } = await axios.post('http://192.168.0.104:3001/api/registration', {
-                username,
-                password,
-                email,
-            })
-            console.log(data)
-            if(data==="Registration completed successfully"){
-                setModalText("Registration completed successfully")
-                setModal2Visible(true)
-            } else {
+    const ChangePassword = async () =>{
+        if(newpasswordone === newpasswordtwo){
+            console.log("Jó")
+            const {data} = await axios.post('http://192.168.0.104:3001/api/ChangePW', {
+                oldpassword,
+                newpasswordone})
+            if(data === "Wrong password"){
                 setModalText(data)
                 setModalVisible(true)
+            } else {
+                setModalText("Password changed")
+                setModal2Visible(true)
             }
-      
-          }
+            
+        } else {
+            setModalText("Passwords doesn't match")
+            setModalVisible(true)
+        }
+        
     }
     const Close = () =>{
         setModalVisible(false)
     }
-    const gotologin =() =>{
-        navigation.navigate('Login')
+    const gotoprofile =() =>{
+        navigation.navigate('Profile')
     }
     return(
         <View style={styles.container}>
@@ -53,27 +43,29 @@ const Registration = ({navigation}) =>{
               style={styles.input} 
               autoCapitalize="none"
               placeholderTextColor="white"
-              value={username} 
-              placeholder="Username"
-              onChangeText={username => setUsername(username)} />
+              secureTextEntry={true} 
+              value={oldpassword} 
+              placeholder="Old password"
+              onChangeText={oldpassword => setOldpassword(oldpassword)} />
             <TextInput 
               style={styles.input} 
               autoCapitalize="none"
               placeholderTextColor="white"
               secureTextEntry={true} 
-              value={password}
-              placeholder="Password" 
-              onChangeText={password => setPassword(password)} />
+              value={newpasswordone}
+              placeholder="New password" 
+              onChangeText={newpasswordone => setNewpasswordone(newpasswordone)} />
             <TextInput 
               style={styles.input} 
               autoCapitalize="none"
               placeholderTextColor="white"
-              value={email} 
-              placeholder="Email"
-              onChangeText={email => setEmail(email)} />
+              secureTextEntry={true} 
+              value={newpasswordtwo} 
+              placeholder="New passwrod"
+              onChangeText={newpasswordtwo => setnewpasswordtwo(newpasswordtwo)} />
             <Button 
-              onPress={Registration} 
-              title="Registration"/>
+              onPress={ChangePassword} 
+              title="Change"/>
             <Modal
               animationType="slide"
               transparent={true}
@@ -98,7 +90,7 @@ const Registration = ({navigation}) =>{
             >
               <View style={styles.modalView}>
                 <Text>{modalText}</Text>
-                <Button onPress={gotologin} title="OK"/>
+                <Button onPress={gotoprofile} title="OK"/>
               </View>
             </Modal>
         </View>
@@ -139,4 +131,4 @@ const styles = StyleSheet.create({
     },
   })
   
-export default Registration
+export default PWChange
