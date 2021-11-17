@@ -2,6 +2,7 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
+import path from 'path'
 
 import api from './routes/api.js'
 
@@ -12,6 +13,7 @@ const app = express()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
+app.use('/api/files', express.static(path.join(path.dirname('.'), 'upload')))
 app.use('/api', api)
 
 const { DB_USER, DB_PASSWORD, DB_URL, DB_NAME, PORT } = process.env

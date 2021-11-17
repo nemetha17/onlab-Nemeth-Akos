@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import { upload } from '../utils/storage.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import multer from 'multer'
 const router = Router()
 
 const TOKEN_SECRET = 'Token secret szoveg'
@@ -18,6 +19,11 @@ const userSchema = new mongoose.Schema({
   password: { type: String, select: false, required: true, },
   email: {type: String, required: true, select: false},
   registeredAt: { type: Date, default: Date.now, select: false },
+  profilePics:{ type:String, default:" "},
+  following: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    }
 })
 const commentSchema = new mongoose.Schema({
   createdBy: {
@@ -43,7 +49,9 @@ const postSchema = new mongoose.Schema({
   comments: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'comment',
-  }
+  },
+  pics:{ type:String, default:" "},
+
   
 })
 
@@ -67,6 +75,26 @@ router.get('/Usercheck', authentication,  async (req, res) => {
   const user = await User.findOne({_id : req.user})
   console.log(user)
   res.json("OK")
+})
+
+router.get('/Mydata', authentication,  async (req, res) => {
+  const user = await User.findOne({_id : req.user})
+  console.log("a")
+  console.log(user)
+  res.json(user)
+})
+
+router.get('/Myname', authentication,  async (req, res) => {
+  const user = await User.findOne({_id : req.user})
+  const username = user.username
+  res.json(username)
+})
+
+router.get('/Mypics', authentication,  async (req, res) => {
+  const user = await User.findOne({_id : req.user})
+  console.log("a")
+  console.log(user)
+  res.json(user.profilePics)
 })
 
 router.post('/registration', async (req, res) => {
@@ -128,19 +156,23 @@ router.post('/ChangePW', authentication, async (req, res) => {
     }
 })
 
-router.post('/uploadpic', upload.single('pic'), (req, res) => {
-  console.log(req.file)
-  console.log(req.body)
+router.post('/uploadpic/:id', upload.single('pic'), async(req, res) => {
+  console.log("eljut ide")  
+  console.log(req.file.filename)
   const filepath = "/api/files/"+req.file.filename
   console.log(filepath)
-  res.json(filepath)
+  const id = req.params.id
+  const user = await Post.findByIdAndUpdate(id, {pics:filepath})
+  res.json("Succes")
 })
 
-router.post('/uploadprofilepic', upload.single('pic'), (req, res) => {
-  console.log(req.file)
-  console.log(req.body)
+router.post('/uploadprofilepic', authentication, upload.single('pic'), async(req, res) => {
+  console.log("eljut ide")  
+  console.log(req.file.filename)
   const filepath = "/api/files/"+req.file.filename
   console.log(filepath)
+  const id = req.user
+  const user = await User.findByIdAndUpdate(id, {profilePics:filepath})
   res.json(filepath)
 })
 
@@ -229,6 +261,7 @@ router.get('/myposts', authentication,  async (req, res) => {
   res.json(posts)
 })
 
+
 router.get('/userposts/:id', authentication,  async (req, res) => {
   const id = req.params.id
   const posts = await Post.find({ createdBy: id })
@@ -236,10 +269,10 @@ router.get('/userposts/:id', authentication,  async (req, res) => {
 })
 
 
-router.post('/posts', authentication , async (req, res) => {
+router.post('/posts', authentication, upload.single('pic') , async (req, res) => {
   const { title, content, topic } = req.body
-  await Post.create({ title, content, topic, createdBy: req.user })
-  res.json("Succes")
+  const post = await Post.create({ title, content, topic, createdBy: req.user})
+  res.json(post)
 })
 
 router.put('/postsread/:id', async(req,res) =>{
@@ -259,16 +292,52 @@ router.get('/Userid', authentication,  async (req, res) => {
 }) 
 
 router.post('/postcomment/:id', authentication , async(req,res) =>{
-  const userid= req.user
-  const user = await User.findOne({ userid })
+  const user = await User.findOne({_id: req.user })
   const id = req.params.id
   const comment = req.body.comment
   console.log(comment)
+  console.log(user)
   const postedcomment = await Comment.create({createdBy: req.user, username: user.username, text: comment})
   console.log(postedcomment)
   const updated = await Post.findByIdAndUpdate(id, { $push:{ comments:postedcomment}})
   console.log(updated)
   res.json("Success")
 })
+
+
+router.get('/username/:id', authentication , async(req,res) =>{
+  const id = req.params.id
+  const user = await User.findOne({_id : id})
+  console.log("aysdasdsad")
+  console.log(user.username)
+  res.json(user.username)
+})
+
+router.put('/follow/:id',authentication , async(req,res) =>{
+  const id = req.params.id
+  console.log("user:")
+  console.log(req.user)
+  const user = await User.findByIdAndUpdate(req.user, { $push:{ following: id}})
+  res.json("Followed")
+})
+
+router.put('/unfollow/:id',authentication , async(req,res) =>{
+  const id = req.params.id
+  console.log("user:")
+  console.log(req.user)
+  const user = await User.findByIdAndUpdate(req.user, { $pull:{ following: id}})
+  res.json("Followed")
+})
+
+router.get('/Myfeed', authentication, async(req,res)=>{
+  const user = await User.findOne({_id : req.user})
+  console.log(user)
+  console.log(user.following)
+  const posts = await Post.find({createdBy : user.following}).sort({_id:-1});
+  console.log(posts)
+  res.send(posts)
+})
+
+
 
 export default router

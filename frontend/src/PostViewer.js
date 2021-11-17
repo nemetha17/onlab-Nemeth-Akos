@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import {View, Text, Modal, StyleSheet,TextInput } from 'react-native'
+import {View, Text, Modal, StyleSheet,TextInput, Image } from 'react-native'
 import axios from 'axios'
 import Button from './components/Button'
 
@@ -62,6 +62,7 @@ const PostViewer = ({route, navigation}) =>{
             <Text style={styles.titleText} >{post.title}</Text>
             <Text style={styles.typeText} >{post.topic}</Text>
             <Text style={styles.contentText} >{post.content}</Text>
+            <Image source={{ uri: 'http://192.168.0.104:3001'+post.pics }} style={{ width: 200, height: 200 }}/>
             <Text style={styles.readText} >This post was read:{post.read} times</Text>
           </View>
             {(post.createdBy===userid) ? (
@@ -72,7 +73,7 @@ const PostViewer = ({route, navigation}) =>{
             ):<Text></Text>}
             <View style={styles.comment}>
                 {comments.map((com) => (
-                    <Text>{com.username}: {com.text}</Text>
+                    <Text  style={styles.contentText} >{com.username}: {com.text}</Text>
                  ))}
             </View>
             <TextInput style={styles.input}  value={comment} onChangeText={comment => setComment(comment)} />
@@ -87,7 +88,7 @@ const PostViewer = ({route, navigation}) =>{
               }}
             >
               <View style={styles.modalView}>
-                <Text>{modalText}</Text>
+                <Text style={styles.Text}>{modalText}</Text>
                 <Button onPress={Close} title="OK"/>
               </View>
             </Modal>
@@ -99,7 +100,7 @@ const PostViewer = ({route, navigation}) =>{
 const styles = StyleSheet.create({
     modalView: {
       margin: 20,
-      backgroundColor: "white",
+      backgroundColor: "black",
       borderRadius: 20,
       padding: 35,
       alignItems: "center",
@@ -114,13 +115,13 @@ const styles = StyleSheet.create({
     },
     container: {
       flex: 1,
-      backgroundColor: "green",
+      backgroundColor: "black",
       alignItems: "center",
     },
     input: {
       width: 350,
       height: 55,
-      backgroundColor: "lightgreen",
+      backgroundColor: '#303030',
       margin: 10,
       padding: 8,
       color: "white",
@@ -131,33 +132,41 @@ const styles = StyleSheet.create({
     title:{
       justifyContent: "center",
       width: 350,
-      backgroundColor: "lightgreen",
+      backgroundColor: '#303030',
       margin: 10,
       padding: 8,
       color: "white",
       borderRadius: 14,
+      alignItems: "center",
     },
     titleText:{
       fontSize: 24,
-      fontWeight: "bold"
+      fontWeight: "bold",
+      color: 'lightgray'
     },
     typeText:{
       fontSize: 14,
+      color: 'lightgray'
     },
     contentText:{
       fontSize: 18,
+      color: 'lightgray'
     },
     readText:{
       fontSize: 10,
+      color: 'lightgray'
     },
     comment:{
       justifyContent: "center",
       width: 350,
-      backgroundColor: "lightgreen",
+      backgroundColor: '#303030',
       margin: 10,
       padding: 8,
       borderRadius: 14,
-    }
+    },
+    Text:{
+      color: 'lightgray'
+    },
   
 
 })

@@ -1,5 +1,5 @@
-import React, {useState} from 'react'
-import {View, Text, TouchableHighlight, Modal,  StyleSheet } from 'react-native'
+import React, {useState, useEffect} from 'react'
+import {View, Text, TouchableHighlight, Modal,  StyleSheet, Image } from 'react-native'
 import axios from 'axios'
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import Button from './components/Button'
@@ -8,24 +8,43 @@ const Profile = ({navigation}) =>{
     const [modalVisible, setModalVisible] = useState(false);
     const [modalText, setModalText] = useState('')
     const [posts, setPosts] = useState([])
-    const [search, setSearch] = useState('')
+    const [me,setMe] = useState()
+    const [name, setName] = useState()
 
-    const getMyPosts = async () => {
+
+    const load = async () => {
+      const {data : username}= await axios.get('http://192.168.0.104:3001/api/Myname')
+        console.log(username)
+        setName(username)
+        console.log("asd")
+        console.log(name)
         const { data: posts } = await axios.get('http://192.168.0.104:3001/api/myposts')
         setPosts(posts)
         console.log(posts)
+        const {data} = await axios.get('http://192.168.0.104:3001/api/Mypics')
+        console.log(data)
+        setMe(data)
+        console.log(me)
+
     }
+    useEffect(() =>{
+        load()
+    }, [])
+
 
     const LogOut = async () =>{
+        setModalVisible(false)
         AsyncStorage.removeItem('token')
         navigation.navigate('Login')
 
     }
 
     const ChangeProfilePics = async () =>{
+        setModalVisible(false)
         navigation.navigate('Changeppics')
     }
     const ChangePassword = async () =>{
+        setModalVisible(false)
         navigation.navigate('PWChange')
     }
 
@@ -37,29 +56,8 @@ const Profile = ({navigation}) =>{
         navigation.navigate("PostViewer", {id: id})
     }
 
-    const EditPost = async () =>{
-        if(search===''){
-            setModalText("Search is empty")
-            setModalVisible(true)
-        } else {
-            const {data} = await axios.get('http://192.168.0.104:3001/api/checkposts/'+search)
-            console.log(data)
-            if(data==="no such post"){
-                setModalText("Wrong title")
-                setModalVisible(true)
-            } else if(data==="Not your post"){
-                setModalText(data)
-                setModalVisible(true)
-            }else {
-                const {data} = await axios.get('http://192.168.0.104:3001/api/searchposts/'+search)
-                console.log(data)
-                if(data.title===search){
-                    console.log(data._id)
-                    navigation.navigate("PostEditor", {id: data._id})
-                } else{
-                    console.log(data)
-                }
-            }}
+    const Modalopen = () =>{
+        setModalVisible(true)
     }
 
     const Close = () =>{
@@ -69,16 +67,20 @@ const Profile = ({navigation}) =>{
     
     return(
         <View style={styles.container}>
-            <View style={{ flexDirection: "row" }}>
-                <Button title="Change Password"  onPress={ChangePassword}/>
-                <Button title="Change Profile Pics"  onPress={ChangeProfilePics}/>
-                <Button title="LogOut"  onPress={LogOut}/>
-            </View>
-            <Button title="My Posts"  onPress={getMyPosts}/>
+              <View style={styles.header}>
+              <TouchableHighlight onPress={() =>Modalopen()}>
+              <Image source={{ uri: 'http://192.168.0.104:3001'+me }} style={{ width: 50, height: 50 }} />
+              </TouchableHighlight>
+              <View style={styles.user}>
+                <Text style={styles.Name}>{name}</Text>
+              </View>
+              </View>
             <View>
                 {posts.map((post) => (
                     <View style={styles.touchable}>
-                        <TouchableHighlight onPress={() =>Read(post)}><Text>{post.title}</Text></TouchableHighlight>
+                        <TouchableHighlight onPress={() =>Read(post)}>
+                          <Text style={styles.Text}>{post.title}</Text>
+                        </TouchableHighlight>
                     </View>
                  ))}
             </View>
@@ -92,8 +94,10 @@ const Profile = ({navigation}) =>{
               }}
             >
               <View style={styles.modalView}>
-                <Text>{modalText}</Text>
-                <Button onPress={Close} title="OK"/>
+                <Button title="Change Password"  onPress={ChangePassword}/>
+                <Button title="Change Profile Pics"  onPress={ChangeProfilePics}/>
+                <Button title="LogOut"  onPress={LogOut}/>
+                <Button onPress={Close} title="Close"/>
               </View>
             </Modal>
         </View>
@@ -102,7 +106,7 @@ const Profile = ({navigation}) =>{
 const styles = StyleSheet.create({
     modalView: {
       margin: 20,
-      backgroundColor: "white",
+      backgroundColor: "black",
       borderRadius: 20,
       padding: 35,
       alignItems: "center",
@@ -120,7 +124,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         width: 350,
         height: 55,
-        backgroundColor: "lightgreen",
+        backgroundColor: '#303030',
         margin: 10,
         padding: 8,
         color: "white",
@@ -129,10 +133,26 @@ const styles = StyleSheet.create({
       },
       container: {
         flex: 1,
-        backgroundColor: "green",
+        backgroundColor: "black",
         alignItems: "center",
       },
-})
+      Text:{
+        color: 'lightgray'
+      },
+      header:{
+        flexDirection: "row" ,
+        backgroundColor: "black",
+      },
+      Name:{
+        color: 'lightgray',
+        fontSize:24
+      },
+      user:{
+        paddingLeft:100,
+        paddingTop:10
+      }
+    
+    })
   
 
 export default Profile

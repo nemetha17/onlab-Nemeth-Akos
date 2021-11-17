@@ -92,7 +92,7 @@ const PostEditor = ({route, navigation}) =>{
                     }}
                     >
                     <View style={styles.modalView}>
-                        <Text>{modalText}</Text>
+                        <Text style={styles.Text}>{modalText}</Text>
                         <Button onPress={Close} title="OK"/>
                     </View>
                 </Modal>
@@ -103,7 +103,7 @@ const PostEditor = ({route, navigation}) =>{
 const styles = StyleSheet.create({
     modalView: {
       margin: 20,
-      backgroundColor: "white",
+      backgroundColor: "black",
       borderRadius: 20,
       padding: 35,
       alignItems: "center",
@@ -118,14 +118,14 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: "green",
+        backgroundColor: "black",
         justifyContent: "center",
         alignItems: "center",
       },
       input: {
         width: 350,
         height: 55,
-        backgroundColor: "lightgreen",
+        backgroundColor: '#303030',
         margin: 10,
         padding: 8,
         color: "white",
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
       inputcontent: {
         width: 350,
         height: 200,
-        backgroundColor: "lightgreen",
+        backgroundColor: '#303030',
         margin: 10,
         padding: 8,
         color: "white",
@@ -146,8 +146,12 @@ const styles = StyleSheet.create({
       }, 
       titleText:{
         fontSize: 24,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        color: 'lightgray'
       },
+      Text:{
+        color: 'lightgray'
+      },s
     })
 
 

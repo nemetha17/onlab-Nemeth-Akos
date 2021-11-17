@@ -37,9 +37,7 @@ const Search = ({navigation}) =>{
                 setModalVisible(true)
             } else {
                 const id = data._id
-                const { data: posts } = await axios.get('http://192.168.0.104:3001/api/userposts/'+id)
-                setPosts(posts)
-                console.log(posts)
+                navigation.navigate("UserProfile", {id: id})
             }
         }
     }
@@ -82,7 +80,7 @@ const Search = ({navigation}) =>{
                 }}
                 >
                 <View style={styles.modalView}>
-                    <Text>{modalText}</Text>
+                    <Text style={styles.Text}>{modalText}</Text>
                     <Button onPress={Close} title="OK"/>
                 </View>
             </Modal>
@@ -92,7 +90,7 @@ const Search = ({navigation}) =>{
 const styles = StyleSheet.create({
     modalView: {
       margin: 20,
-      backgroundColor: "white",
+      backgroundColor: "black",
       borderRadius: 20,
       padding: 35,
       alignItems: "center",
@@ -107,13 +105,13 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: "green",
+        backgroundColor: "black",
         alignItems: "center",
       },
       input: {
         width: 350,
         height: 55,
-        backgroundColor: "lightgreen",
+        backgroundColor: '#303030',
         margin: 10,
         padding: 8,
         color: "white",
@@ -123,20 +121,24 @@ const styles = StyleSheet.create({
       },
       titleText:{
         fontSize: 24,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        color: 'lightgray'
       },
       touchable:{
         justifyContent: "center",
         alignItems: "center",
         width: 350,
         height: 55,
-        backgroundColor: "lightgreen",
+        backgroundColor: '#303030',
         margin: 10,
         padding: 8,
         color: "white",
         borderRadius: 14,
         fontSize: 18,
-      }
+      },
+      Text:{
+        color: 'lightgray'
+      },
       
 })
   

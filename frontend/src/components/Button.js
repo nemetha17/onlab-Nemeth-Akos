@@ -18,11 +18,14 @@ const Button = ({ title, ...rest }) => {
         borderWidth: 1,
         padding: 10,
         margin:10,
-        borderColor: 'darkgray',
         borderRadius: 10,
+        backgroundColor: '#303030'
       }}
     >
-      <Text>{title}</Text>
+      <Text
+      style={{
+        color: 'lightgray'
+      }} >{title}</Text>
     </TouchableHighlight>
   )
 }
